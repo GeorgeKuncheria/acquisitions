@@ -316,3 +316,18 @@
 {"level":"info","message":"User created succesfully with email: bigboss@gmail.com","service":"aquisitions-api"}
 {"level":"info","message":"User Signed Up: bigboss@gmail.com","service":"aquisitions-api"}
 {"level":"info","message":"::ffff:192.168.65.1 - - [05/Oct/2025:04:57:17 +0000] \"POST /api/auth/sign-up HTTP/1.1\" 201 117 \"-\" \"PostmanRuntime/7.48.0\"","service":"aquisitions-api"}
+{"level":"info","message":"::1 - - [05/Oct/2025:19:11:22 +0000] \"GET /health HTTP/1.1\" 200 75 \"-\" \"PostmanRuntime/7.48.0\"","service":"aquisitions-api"}
+{"level":"info","message":"Fetching all users","service":"aquisitions-api"}
+{"error":"users is not defined","level":"error","message":"Error fetching users","service":"aquisitions-api"}
+{"level":"error","service":"aquisitions-api"}
+{"level":"info","message":"::1 - - [05/Oct/2025:19:12:01 +0000] \"GET /api/users/ HTTP/1.1\" 500 1502 \"-\" \"PostmanRuntime/7.48.0\"","service":"aquisitions-api"}
+{"level":"info","message":"Fetching all users","service":"aquisitions-api"}
+{"error":"Failed query: select \"id\", \"name\", \"email\", \"role\", \"created_at\", \"updated_at\" from \"users\"\nparams: ","level":"error","message":"Error fetching users","service":"aquisitions-api"}
+{"level":"error","service":"aquisitions-api"}
+{"level":"info","message":"::1 - - [05/Oct/2025:19:13:09 +0000] \"GET /api/users/ HTTP/1.1\" 500 546 \"-\" \"PostmanRuntime/7.48.0\"","service":"aquisitions-api"}
+{"level":"info","message":"Fetching all users","service":"aquisitions-api"}
+{"error":"Failed query: select \"id\", \"name\", \"email\", \"role\", \"created_at\", \"updated_at\" from \"users\"\nparams: ","level":"error","message":"Error fetching users","service":"aquisitions-api"}
+{"level":"error","service":"aquisitions-api"}
+{"level":"info","message":"::1 - - [05/Oct/2025:19:13:16 +0000] \"GET /api/users/ HTTP/1.1\" 500 546 \"-\" \"PostmanRuntime/7.48.0\"","service":"aquisitions-api"}
+{"level":"info","message":"Fetching all users","service":"aquisitions-api"}
+{"level":"info","message":"::1 - - [05/Oct/2025:19:16:39 +0000] \"GET /api/users/ HTTP/1.1\" 200 540 \"-\" \"PostmanRuntime/7.48.0\"","service":"aquisitions-api"}
