@@ -7,12 +7,13 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 This is a Node.js/Express.js authentication API called "Acquisitions" that implements a secure user management system with JWT-based authentication, role-based access control, and comprehensive security middleware using Arcjet.
 
 **Architecture**: Layered/Onion architecture with clean separation of concerns
-**Database**: Neon PostgreSQL with Drizzle ORM 
+**Database**: Neon PostgreSQL with Drizzle ORM
 **Security**: bcrypt password hashing, JWT tokens, httpOnly cookies, Arcjet security middleware
 
 ## Common Development Commands
 
 ### Development
+
 ```bash
 # Start development server with auto-reload
 npm run dev
@@ -24,6 +25,7 @@ sh scripts/dev.sh
 ```
 
 ### Database Operations
+
 ```bash
 # Generate new migrations after schema changes
 npm run db:generate
@@ -36,6 +38,7 @@ npm run db:studio
 ```
 
 ### Code Quality
+
 ```bash
 # Run ESLint
 npm run lint
@@ -51,6 +54,7 @@ npm run format:check
 ```
 
 ### Production Deployment
+
 ```bash
 # Start production server
 npm start
@@ -62,6 +66,7 @@ sh scripts/prod.sh
 ```
 
 ### Docker Development
+
 ```bash
 # Start development environment (app + Neon Local database)
 docker-compose -f docker-compose.dev.yml up --build
@@ -79,9 +84,11 @@ docker-compose -f docker-compose.dev.yml down
 ## Architecture & Code Structure
 
 ### Import Path Aliases
+
 The project uses ES Module import path mapping for clean imports:
+
 - `#config/*` → `./src/config/*`
-- `#models/*` → `./src/models/*` 
+- `#models/*` → `./src/models/*`
 - `#routes/*` → `./src/routes/*`
 - `#controllers/*` → `./src/controllers/*`
 - `#services/*` → `./src/services/*`
@@ -90,6 +97,7 @@ The project uses ES Module import path mapping for clean imports:
 - `#middleware/*` → `./src/middleware/*`
 
 ### Layered Architecture Flow
+
 ```
 Routes → Controllers → Services → Models/Database
   ↓         ↓            ↓           ↓
@@ -99,21 +107,25 @@ Layer     & Error     Logic      via Drizzle
 ```
 
 **Key Patterns:**
+
 - **Controllers** handle HTTP concerns (validation, responses, error handling)
 - **Services** contain pure business logic and data operations
 - **Models** define database schemas using Drizzle ORM
 - **Utils** provide cross-cutting concerns (JWT, cookies, formatting)
 
 ### Database Schema
+
 The application uses a single `users` table with:
+
 - `id` (serial, primary key)
 - `name` (varchar, required)
-- `email` (varchar, unique, required)  
+- `email` (varchar, unique, required)
 - `password` (varchar, bcrypt hashed, required)
 - `role` (varchar, 'user'|'admin', default 'user')
 - `createdAt`, `updatedAt` (timestamps)
 
 ### Security Architecture
+
 - **Password Security**: bcrypt with 10 salt rounds
 - **Authentication**: JWT tokens stored in httpOnly cookies (15min expiry)
 - **Rate Limiting**: Arcjet middleware with role-based limits (admin: 20/min, user: 10/min, guest: 5/min)
@@ -122,23 +134,28 @@ The application uses a single `users` table with:
 - **Input Validation**: Zod schemas with custom error formatting
 
 ### Environment Configurations
+
 - **Development**: Uses Neon Local proxy (`neonConfig.fetchEndpoint='http://neon-local:5432/sql'`)
 - **Production**: Connects directly to Neon Cloud via `DATABASE_URL`
 
 ## API Endpoints
 
 ### Authentication Routes (`/api/auth/`)
+
 - `POST /api/auth/sign-up` - User registration
-- `POST /api/auth/sign-in` - User login  
+- `POST /api/auth/sign-in` - User login
 - `POST /api/auth/sign-out` - User logout
 
 ### Health Check Routes
+
 - `GET /` - Root endpoint
 - `GET /health` - Health status with uptime
 - `GET /api` - API status
 
 ### Request/Response Patterns
+
 All endpoints follow consistent patterns:
+
 - **Validation**: Zod schemas for input validation
 - **Error Handling**: Structured error responses with appropriate HTTP status codes
 - **Logging**: Winston structured logging for all operations
@@ -147,6 +164,7 @@ All endpoints follow consistent patterns:
 ## Database Development
 
 ### Drizzle ORM Workflow
+
 1. **Schema Changes**: Modify files in `src/models/`
 2. **Generate Migration**: `npm run db:generate`
 3. **Review Migration**: Check generated SQL in `drizzle/` directory
@@ -154,7 +172,9 @@ All endpoints follow consistent patterns:
 5. **Verify**: Use `npm run db:studio` to inspect database
 
 ### Local Development with Docker
+
 The development setup uses Neon Local for database development:
+
 - Provides ephemeral database branches
 - Full PostgreSQL compatibility
 - Easy reset by restarting containers
@@ -163,6 +183,7 @@ The development setup uses Neon Local for database development:
 ## Testing & Debugging
 
 ### Manual API Testing
+
 ```bash
 # User Registration
 curl -X POST http://localhost:3000/api/auth/sign-up \
@@ -182,6 +203,7 @@ curl -X POST http://localhost:3000/api/auth/sign-out \
 ```
 
 ### Logging & Debugging
+
 - **Development**: Console + file logging with colors
 - **Production**: File logging only (`logs/error.log`, `logs/combined.log`)
 - **Log Levels**: Configurable via `LOG_LEVEL` environment variable
@@ -190,11 +212,12 @@ curl -X POST http://localhost:3000/api/auth/sign-out \
 ## Environment Variables
 
 ### Required Variables
+
 ```bash
 # Database
 DATABASE_URL=postgresql://user:password@host:port/database
 
-# JWT Authentication  
+# JWT Authentication
 JWT_SECRET=your-secret-key-here
 
 # Security (Arcjet)
@@ -202,6 +225,7 @@ ARCJET_KEY=your-arcjet-key-here
 ```
 
 ### Optional Variables (have defaults)
+
 ```bash
 PORT=3000
 NODE_ENV=development
@@ -209,6 +233,7 @@ LOG_LEVEL=info
 ```
 
 ### Development-Specific (.env.development)
+
 ```bash
 # Neon Local development
 NEON_API_KEY=your_neon_api_key
@@ -219,18 +244,21 @@ DATABASE_URL=postgresql://user:password@neon-local:5432/neondb
 ## Extending the Application
 
 ### Adding New Routes
+
 1. Create route file in `src/routes/`
-2. Create controller in `src/controllers/` 
+2. Create controller in `src/controllers/`
 3. Add business logic to `src/services/`
 4. Register route in `src/routes/index.js`
 
 ### Adding Database Tables
+
 1. Create model in `src/models/`
 2. Import and export in `src/models/user.model.js` or create index
 3. Generate migration with `npm run db:generate`
 4. Apply migration with `npm run db:migrate`
 
 ### Security Considerations
+
 - All endpoints automatically get Arcjet security middleware
 - JWT tokens expire in 15 minutes (configured in `src/utils/cookies.js`)
 - Rate limits are role-based (configured in `src/middleware/security.middleware.js`)
@@ -242,11 +270,13 @@ DATABASE_URL=postgresql://user:password@neon-local:5432/neondb
 The project includes comprehensive Docker support:
 
 ### Development Stack
+
 - **Application**: Node.js with hot reload
 - **Database**: Neon Local proxy container
 - **Network**: Bridge network for container communication
 
 ### Production Features
+
 - **Multi-stage builds** for optimized images
 - **Non-root user** execution (nodeuser:1001)
 - **Security hardening** (read-only filesystem, no new privileges)

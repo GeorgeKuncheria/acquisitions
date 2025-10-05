@@ -14,6 +14,7 @@
 **Structure Type:** **Monolithic API** with modular organization
 
 ### **High-Level Structure:**
+
 ```
 acquisitions/
 ├── src/                    # Source code
@@ -33,6 +34,7 @@ acquisitions/
 ```
 
 **Key Architectural Patterns:**
+
 - **ES Modules:** Modern JavaScript with import/export syntax
 - **Path Mapping:** Clean imports using `#` aliases (`#config/*`, `#services/*`)
 - **Environment-driven Configuration:** Uses `.env` for different deployment environments
@@ -42,11 +44,13 @@ acquisitions/
 ## 3. **Key Components**
 
 ### **Entry Layer**
+
 - **`src/index.js`**: Bootstrap file that loads environment variables and starts the server
 - **`src/server.js`**: HTTP server configuration and port binding
 - **`src/app.js`**: Express application setup with middleware stack
 
 ### **Route Layer (`src/routes/`)**
+
 - **`index.js`**: Central route registry that mounts all route modules
 - **`auth.routes.js`**: Authentication endpoints (`/api/auth/*`)
   - `POST /api/auth/sign-up` - User registration
@@ -54,6 +58,7 @@ acquisitions/
   - `POST /api/auth/sign-out` - User logout
 
 ### **Controller Layer (`src/controllers/`)**
+
 - **`auth.controller.js`**: Request handling and response orchestration
   - Input validation using Zod schemas
   - Business logic coordination through services
@@ -61,6 +66,7 @@ acquisitions/
   - JWT token management and cookie setting
 
 ### **Service Layer (`src/services/`)**
+
 - **`auth.service.js`**: Core business logic implementation
   - `hashPassword()` - Bcrypt password hashing
   - `comparePassword()` - Password verification
@@ -68,21 +74,25 @@ acquisitions/
   - `authenticateUser()` - Login credential validation
 
 ### **Model Layer (`src/models/`)**
+
 - **`user.model.js`**: Database schema using Drizzle ORM
   - Users table: id, name, email, password, role, timestamps
   - Email uniqueness constraint
   - Role-based access (user/admin)
 
 ### **Configuration (`src/config/`)**
+
 - **`database.js`**: Neon PostgreSQL connection via Drizzle ORM
 - **`logger.js`**: Winston logging with file and console outputs
 
 ### **Utilities (`src/utils/`)**
+
 - **`jwt.js`**: JWT token signing and verification
 - **`cookies.js`**: Secure cookie management (httpOnly, sameSite, secure flags)
 - **`format.js`**: Validation error message formatting
 
 ### **Validation (`src/validations/`)**
+
 - **`auth.validations.js`**: Zod schemas for runtime input validation
 
 ---
@@ -120,6 +130,7 @@ Client Request Flow:
 ```
 
 **Component Communication:**
+
 - **Routes → Controllers**: HTTP requests with parsed JSON bodies
 - **Controllers → Services**: Clean, validated data objects
 - **Services → Database**: Type-safe SQL queries via Drizzle ORM
@@ -130,34 +141,41 @@ Client Request Flow:
 ## 5. **Tech Stack & Dependencies**
 
 ### **Core Framework**
+
 - **Node.js** with **ES Modules** - Modern JavaScript runtime
 - **Express.js 5.1.0** - Web application framework
 
 ### **Database Stack**
+
 - **Neon PostgreSQL** - Serverless PostgreSQL database
 - **Drizzle ORM 0.44.6** - Type-safe SQL query builder
 - **Drizzle Kit** - Database migrations and schema management
 
 ### **Security & Authentication**
+
 - **bcrypt 6.0.0** - Password hashing (10 salt rounds)
 - **jsonwebtoken 9.0.2** - JWT token generation/verification
 - **helmet 8.1.0** - Security headers middleware
 - **cookie-parser 1.4.7** - Secure cookie handling
 
 ### **Validation & Utilities**
+
 - **Zod 4.1.11** - Runtime schema validation
 - **cors 2.8.5** - Cross-Origin Resource Sharing
 - **dotenv 17.2.3** - Environment variable management
 
 ### **Logging & Monitoring**
+
 - **Winston 3.18.3** - Structured logging (JSON format)
 - **Morgan 1.10.1** - HTTP request logging middleware
 
 ### **Development Tools**
+
 - **ESLint + Prettier** - Code quality and formatting
 - **Node --watch** - Development auto-restart
 
 **Why These Choices:**
+
 - **Drizzle ORM**: Type-safe, performant, excellent migration support
 - **Neon**: Serverless PostgreSQL perfect for modern cloud deployments
 - **Zod**: Runtime validation with TypeScript-like developer experience
@@ -237,24 +255,28 @@ Client Request Flow:
 ### **Strengths**
 
 **🔒 Security Excellence**
+
 - Industry-standard password hashing with bcrypt
 - Secure JWT implementation with httpOnly cookies
 - Comprehensive security headers via Helmet
 - Input sanitization and validation with Zod
 
 **🏗️ Architecture Quality**
+
 - Clean separation of concerns (layered architecture)
 - Modern ES Modules with clean import paths
 - Type-safe database operations with Drizzle ORM
 - Comprehensive error handling and logging
 
 **🚀 Developer Experience**
+
 - Auto-restart development workflow
 - Structured logging with Winston
 - Code quality enforcement (ESLint/Prettier)
 - Database migrations managed properly
 
 **☁️ Production Ready**
+
 - Serverless PostgreSQL with Neon
 - Environment-driven configuration
 - Health check endpoints
@@ -263,18 +285,21 @@ Client Request Flow:
 ### **Tradeoffs & Limitations**
 
 **⚠️ Incomplete Feature Set**
+
 - No JWT token validation middleware for protected routes
 - Missing password reset functionality
 - No email verification system
 - Limited user profile management
 
 **⚠️ Scalability Considerations**
+
 - Monolithic architecture may limit scaling for complex workflows
 - No session store (Redis) for distributed deployments
 - Single database instance (no read replicas)
 - Short cookie expiry (15 minutes) may impact UX
 
 **⚠️ Production Gaps**
+
 - No rate limiting for brute force protection
 - Missing API versioning strategy
 - Limited monitoring and metrics collection
@@ -289,19 +314,25 @@ Client Request Flow:
 ### **Health & Status Endpoints**
 
 #### **GET /** - Root Endpoint
+
 ```bash
 GET /
 ```
+
 **Response:**
+
 ```json
 "Hello from Acquisitions API!"
 ```
 
 #### **GET /health** - Health Check
+
 ```bash
 GET /health
 ```
+
 **Response:**
+
 ```json
 {
   "status": "OK",
@@ -311,10 +342,13 @@ GET /health
 ```
 
 #### **GET /api** - API Status
+
 ```bash
 GET /api
 ```
+
 **Response:**
+
 ```json
 {
   "message": "Acquisitions API is running!"
@@ -326,6 +360,7 @@ GET /api
 #### **POST /api/auth/sign-up** - User Registration
 
 **Request Body:**
+
 ```json
 {
   "name": "John Doe",
@@ -336,6 +371,7 @@ GET /api
 ```
 
 **Success Response (201):**
+
 ```json
 {
   "message": "User registered successfully",
@@ -351,6 +387,7 @@ GET /api
 #### **POST /api/auth/sign-in** - User Login
 
 **Request Body:**
+
 ```json
 {
   "email": "john.doe@example.com",
@@ -359,6 +396,7 @@ GET /api
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "message": "User signed in successfully",
@@ -374,11 +412,13 @@ GET /api
 #### **POST /api/auth/sign-out** - User Logout
 
 **Request Body:** No body required (uses cookie for authentication)
+
 ```json
 {}
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "message": "User signed out successfully"
@@ -388,6 +428,7 @@ GET /api
 ### **cURL Examples**
 
 #### **User Registration:**
+
 ```bash
 curl -X POST http://localhost:3000/api/auth/sign-up \
   -H "Content-Type: application/json" \
@@ -400,6 +441,7 @@ curl -X POST http://localhost:3000/api/auth/sign-up \
 ```
 
 #### **User Login:**
+
 ```bash
 curl -X POST http://localhost:3000/api/auth/sign-in \
   -H "Content-Type: application/json" \
@@ -411,6 +453,7 @@ curl -X POST http://localhost:3000/api/auth/sign-in \
 ```
 
 #### **User Logout:**
+
 ```bash
 curl -X POST http://localhost:3000/api/auth/sign-out \
   -H "Content-Type: application/json" \
@@ -423,11 +466,13 @@ curl -X POST http://localhost:3000/api/auth/sign-out \
 ## 9. **Development Setup**
 
 ### **Prerequisites**
+
 - Node.js (ES Modules support)
 - PostgreSQL database (Neon recommended)
 - Environment variables configured
 
 ### **Installation & Running**
+
 ```bash
 # Install dependencies
 npm install
@@ -449,6 +494,7 @@ npm run format        # Format with Prettier
 ```
 
 ### **Environment Variables**
+
 ```env
 PORT=3000
 NODE_ENV=development
@@ -471,12 +517,14 @@ This application is fully dockerized with support for both development and produ
 ### **Environment Configurations**
 
 #### **Development Environment**
+
 - **Database**: Neon Local proxy running in Docker container
 - **Connection**: `postgresql://user:password@neon-local:5432/neondb`
 - **Features**: Hot reload, development logging, ephemeral database branches
 - **Config File**: `.env.development`
 
 #### **Production Environment**
+
 - **Database**: Neon Cloud (serverless PostgreSQL)
 - **Connection**: Injected via `DATABASE_URL` environment variable
 - **Features**: Optimized build, security hardening, resource limits
@@ -487,6 +535,7 @@ This application is fully dockerized with support for both development and produ
 #### **Development Setup**
 
 1. **Configure Neon API credentials** in `.env.development`:
+
    ```bash
    # Update these with your actual Neon credentials
    NEON_API_KEY=your_neon_api_key_here
@@ -494,6 +543,7 @@ This application is fully dockerized with support for both development and produ
    ```
 
 2. **Start development environment** (app + Neon Local):
+
    ```bash
    docker-compose -f docker-compose.dev.yml up --build
    ```
@@ -511,12 +561,14 @@ This application is fully dockerized with support for both development and produ
 #### **Production Deployment**
 
 1. **Set production environment variables**:
+
    ```bash
    export DATABASE_URL="postgresql://user:pass@ep-xxx.neon.tech/db?sslmode=require"
    export ARCJET_KEY="your_production_arcjet_key"
    ```
 
 2. **Deploy with production configuration**:
+
    ```bash
    docker-compose -f docker-compose.prod.yml up --build -d
    ```
@@ -541,6 +593,7 @@ acquisitions/
 ### **Development Workflow**
 
 #### **Starting Development Environment**
+
 ```bash
 # Start services in background
 docker-compose -f docker-compose.dev.yml up -d
@@ -553,6 +606,7 @@ docker-compose -f docker-compose.dev.yml down
 ```
 
 #### **Database Operations**
+
 ```bash
 # Generate new migrations
 docker-compose -f docker-compose.dev.yml exec app npm run db:generate
@@ -565,6 +619,7 @@ docker-compose -f docker-compose.dev.yml exec app npm run db:studio
 ```
 
 #### **Development Tools**
+
 ```bash
 # Run linting
 docker-compose -f docker-compose.dev.yml exec app npm run lint
@@ -579,6 +634,7 @@ docker-compose -f docker-compose.dev.yml exec app sh
 ### **Production Deployment**
 
 #### **Environment Variables**
+
 For production deployment, ensure these environment variables are set:
 
 ```bash
@@ -593,6 +649,7 @@ LOG_LEVEL=info
 ```
 
 #### **Docker Compose Production**
+
 ```bash
 # Deploy to production
 docker-compose -f docker-compose.prod.yml up -d
@@ -605,6 +662,7 @@ docker-compose -f docker-compose.prod.yml up -d --scale app=3
 ```
 
 #### **Manual Docker Build**
+
 ```bash
 # Build production image
 docker build --target production -t acquisitions-api:prod .
@@ -638,6 +696,7 @@ docker run -d \
 ### **Monitoring & Debugging**
 
 #### **Health Checks**
+
 ```bash
 # Check application health
 curl http://localhost:3000/health
@@ -647,6 +706,7 @@ docker-compose -f docker-compose.prod.yml ps
 ```
 
 #### **Log Management**
+
 ```bash
 # Follow application logs
 docker-compose -f docker-compose.dev.yml logs -f app
@@ -656,6 +716,7 @@ docker-compose -f docker-compose.prod.yml logs app > app.log
 ```
 
 #### **Database Connection Testing**
+
 ```bash
 # Test Neon Local connection
 docker-compose -f docker-compose.dev.yml exec neon-local pg_isready -h localhost -p 5432
@@ -667,6 +728,7 @@ docker-compose -f docker-compose.dev.yml exec app node -e "console.log(process.e
 ### **Common Issues & Solutions**
 
 #### **Neon Local Not Starting**
+
 ```bash
 # Check Neon credentials
 docker-compose -f docker-compose.dev.yml logs neon-local
@@ -676,6 +738,7 @@ grep NEON .env.development
 ```
 
 #### **Database Connection Errors**
+
 ```bash
 # Wait for Neon Local to be ready
 docker-compose -f docker-compose.dev.yml up --wait
@@ -685,6 +748,7 @@ docker-compose -f docker-compose.dev.yml exec app ping neon-local
 ```
 
 #### **Port Conflicts**
+
 ```bash
 # Check if ports are in use
 lsof -i :3000
@@ -697,6 +761,7 @@ PORT=3001 docker-compose -f docker-compose.dev.yml up
 ### **CI/CD Integration**
 
 #### **GitHub Actions Example**
+
 ```yaml
 # .github/workflows/docker.yml
 name: Build and Deploy

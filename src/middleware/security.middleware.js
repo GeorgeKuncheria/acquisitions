@@ -6,7 +6,7 @@ export const securityMiddleware = async (req, res, next) => {
   try {
     const role = req.user?.role || 'guest';
     let limit;
-        
+
     // Determine the limit based on the role
     switch (role) {
       case 'admin':
@@ -39,11 +39,17 @@ export const securityMiddleware = async (req, res, next) => {
 
       if (decision.reason.isShield()) {
         logger.warn('Shield triggered:', { ip: req.ip, path: req.path });
-        return res.status(403).json({ error: 'Request blocked by Security Policy' });
+        return res
+          .status(403)
+          .json({ error: 'Request blocked by Security Policy' });
       }
-            
+
       if (decision.reason.isRateLimit()) {
-        logger.warn('Rate limit exceeded:', { role, ip: req.ip, path: req.path });
+        logger.warn('Rate limit exceeded:', {
+          role,
+          ip: req.ip,
+          path: req.path,
+        });
         return res.status(429).json({ error: 'Too Many Requests' });
       }
     }
@@ -51,6 +57,11 @@ export const securityMiddleware = async (req, res, next) => {
     next();
   } catch (e) {
     logger.error('Arcjet middleware error', { error: e.message });
-    res.status(500).json({ error: 'Internal Server Error', message: 'Something went wrong with the Security Middleware' });
+    res
+      .status(500)
+      .json({
+        error: 'Internal Server Error',
+        message: 'Something went wrong with the Security Middleware',
+      });
   }
 };

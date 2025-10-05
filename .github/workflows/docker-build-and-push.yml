@@ -8,25 +8,25 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKER_USERNAME }}/acquisitions
+          images: ${{ secrets.DOCKER_USERNAME }}/acquisitions-app
           tags: |
             type=ref,event=branch
             type=sha,prefix={{branch}}-
@@ -36,7 +36,7 @@ jobs:
             org.opencontainers.image.title=Acquisitions API
             org.opencontainers.image.description=Node.js/Express.js authentication API with JWT-based authentication
             org.opencontainers.image.vendor=Acquisitions Team
-      
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -50,7 +50,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             NODE_ENV=production
-      
+
       - name: Generate deployment summary
         run: |
           echo "## 🐳 Docker Image Published" >> $GITHUB_STEP_SUMMARY

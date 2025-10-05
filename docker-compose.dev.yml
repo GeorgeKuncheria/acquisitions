@@ -6,13 +6,13 @@ services:
     image: neondatabase/neon_local:latest
     container_name: acquisitions-neon-local
     ports:
-      - "5432:5432"
+      - '5432:5432'
     env_file:
       - .env.development
     networks:
       - acquisitions-dev-network
     healthcheck:
-      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "5432"]
+      test: ['CMD', 'pg_isready', '-h', 'localhost', '-p', '5432']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,9 +26,9 @@ services:
       target: development
     container_name: acquisitions-app-dev
     ports:
-      - "3000:3000"
+      - '3000:3000'
     env_file:
-      - .env.development 
+      - .env.development
     volumes:
       # Mount source code for hot reload in development
       - .:/app

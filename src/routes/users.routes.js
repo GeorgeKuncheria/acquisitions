@@ -1,5 +1,10 @@
 import express from 'express';
-import { fetchAllUsers, fetchUserById, modifyUser, removeUser } from '#controllers/users.controller.js';
+import {
+  fetchAllUsers,
+  fetchUserById,
+  modifyUser,
+  removeUser,
+} from '#controllers/users.controller.js';
 
 const router = express.Router();
 
