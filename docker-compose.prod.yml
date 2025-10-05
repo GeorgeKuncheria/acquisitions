@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # Application Service for Production
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: acquisitions-app-prod
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.production
+    networks:
+      - acquisitions-prod-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Production security and resource limits
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+networks:
+  acquisitions-prod-network:
+    driver: bridge
+
+# Note: In production, you might also want to add:
+# - Reverse proxy (nginx, traefik)
+# - Monitoring services (prometheus, grafana)
+# - Log aggregation (fluentd, logstash)
+# - SSL termination
+# - Load balancing for multiple app instances

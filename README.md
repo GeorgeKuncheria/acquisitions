@@ -459,7 +459,271 @@ JWT_SECRET=your-secret-key
 
 ---
 
-## 10. **Final Summary**
+## 10. **Docker Deployment**
+
+### **Overview**
+
+This application is fully dockerized with support for both development and production environments:
+
+- **Development**: Uses Neon Local proxy for local database development with ephemeral branches
+- **Production**: Connects directly to Neon Cloud database
+
+### **Environment Configurations**
+
+#### **Development Environment**
+- **Database**: Neon Local proxy running in Docker container
+- **Connection**: `postgresql://user:password@neon-local:5432/neondb`
+- **Features**: Hot reload, development logging, ephemeral database branches
+- **Config File**: `.env.development`
+
+#### **Production Environment**
+- **Database**: Neon Cloud (serverless PostgreSQL)
+- **Connection**: Injected via `DATABASE_URL` environment variable
+- **Features**: Optimized build, security hardening, resource limits
+- **Config File**: `.env.production`
+
+### **Quick Start**
+
+#### **Development Setup**
+
+1. **Configure Neon API credentials** in `.env.development`:
+   ```bash
+   # Update these with your actual Neon credentials
+   NEON_API_KEY=your_neon_api_key_here
+   NEON_PROJECT_ID=your_neon_project_id_here
+   ```
+
+2. **Start development environment** (app + Neon Local):
+   ```bash
+   docker-compose -f docker-compose.dev.yml up --build
+   ```
+
+3. **Access the application**:
+   - App: http://localhost:3000
+   - Database: localhost:5432 (Neon Local proxy)
+
+4. **Run database migrations** (if needed):
+   ```bash
+   # From within the running container
+   docker-compose -f docker-compose.dev.yml exec app npm run db:migrate
+   ```
+
+#### **Production Deployment**
+
+1. **Set production environment variables**:
+   ```bash
+   export DATABASE_URL="postgresql://user:pass@ep-xxx.neon.tech/db?sslmode=require"
+   export ARCJET_KEY="your_production_arcjet_key"
+   ```
+
+2. **Deploy with production configuration**:
+   ```bash
+   docker-compose -f docker-compose.prod.yml up --build -d
+   ```
+
+3. **Verify deployment**:
+   ```bash
+   curl http://localhost:3000/health
+   ```
+
+### **Docker Files Structure**
+
+```
+acquisitions/
+├── Dockerfile                 # Multi-stage build (dev/prod targets)
+├── docker-compose.dev.yml     # Development with Neon Local
+├── docker-compose.prod.yml    # Production with Neon Cloud
+├── .env.development          # Dev environment variables
+├── .env.production           # Prod environment variables
+└── .dockerignore            # Optimized build context
+```
+
+### **Development Workflow**
+
+#### **Starting Development Environment**
+```bash
+# Start services in background
+docker-compose -f docker-compose.dev.yml up -d
+
+# View logs
+docker-compose -f docker-compose.dev.yml logs -f app
+
+# Stop services
+docker-compose -f docker-compose.dev.yml down
+```
+
+#### **Database Operations**
+```bash
+# Generate new migrations
+docker-compose -f docker-compose.dev.yml exec app npm run db:generate
+
+# Run migrations
+docker-compose -f docker-compose.dev.yml exec app npm run db:migrate
+
+# Open Drizzle Studio
+docker-compose -f docker-compose.dev.yml exec app npm run db:studio
+```
+
+#### **Development Tools**
+```bash
+# Run linting
+docker-compose -f docker-compose.dev.yml exec app npm run lint
+
+# Format code
+docker-compose -f docker-compose.dev.yml exec app npm run format
+
+# Access container shell
+docker-compose -f docker-compose.dev.yml exec app sh
+```
+
+### **Production Deployment**
+
+#### **Environment Variables**
+For production deployment, ensure these environment variables are set:
+
+```bash
+# Required
+DATABASE_URL=postgresql://user:pass@host.neon.tech/db?sslmode=require
+ARCJET_KEY=ajkey_production_key_here
+
+# Optional (have defaults)
+PORT=3000
+NODE_ENV=production
+LOG_LEVEL=info
+```
+
+#### **Docker Compose Production**
+```bash
+# Deploy to production
+docker-compose -f docker-compose.prod.yml up -d
+
+# View production logs
+docker-compose -f docker-compose.prod.yml logs -f
+
+# Scale application (multiple instances)
+docker-compose -f docker-compose.prod.yml up -d --scale app=3
+```
+
+#### **Manual Docker Build**
+```bash
+# Build production image
+docker build --target production -t acquisitions-api:prod .
+
+# Run production container
+docker run -d \
+  --name acquisitions-prod \
+  -p 3000:3000 \
+  -e DATABASE_URL="$DATABASE_URL" \
+  -e ARCJET_KEY="$ARCJET_KEY" \
+  acquisitions-api:prod
+```
+
+### **Neon Local Development Benefits**
+
+1. **Ephemeral Branches**: Automatically creates/destroys database branches
+2. **Isolated Development**: Each developer gets their own database state
+3. **Fast Iteration**: No need to manage local PostgreSQL installation
+4. **Cloud Parity**: Same Neon database engine as production
+5. **Easy Cleanup**: Container restart = fresh database state
+
+### **Production Security Features**
+
+- **Non-root user**: Application runs as `nodeuser` (UID 1001)
+- **Read-only filesystem**: Container filesystem mounted read-only
+- **No new privileges**: Security hardening with `no-new-privileges`
+- **Resource limits**: CPU and memory constraints
+- **Health checks**: Container health monitoring
+- **Secret injection**: Environment variables for sensitive data
+
+### **Monitoring & Debugging**
+
+#### **Health Checks**
+```bash
+# Check application health
+curl http://localhost:3000/health
+
+# Check container health status
+docker-compose -f docker-compose.prod.yml ps
+```
+
+#### **Log Management**
+```bash
+# Follow application logs
+docker-compose -f docker-compose.dev.yml logs -f app
+
+# Export logs
+docker-compose -f docker-compose.prod.yml logs app > app.log
+```
+
+#### **Database Connection Testing**
+```bash
+# Test Neon Local connection
+docker-compose -f docker-compose.dev.yml exec neon-local pg_isready -h localhost -p 5432
+
+# Test from application container
+docker-compose -f docker-compose.dev.yml exec app node -e "console.log(process.env.DATABASE_URL)"
+```
+
+### **Common Issues & Solutions**
+
+#### **Neon Local Not Starting**
+```bash
+# Check Neon credentials
+docker-compose -f docker-compose.dev.yml logs neon-local
+
+# Verify environment variables
+grep NEON .env.development
+```
+
+#### **Database Connection Errors**
+```bash
+# Wait for Neon Local to be ready
+docker-compose -f docker-compose.dev.yml up --wait
+
+# Check network connectivity
+docker-compose -f docker-compose.dev.yml exec app ping neon-local
+```
+
+#### **Port Conflicts**
+```bash
+# Check if ports are in use
+lsof -i :3000
+lsof -i :5432
+
+# Use different ports if needed
+PORT=3001 docker-compose -f docker-compose.dev.yml up
+```
+
+### **CI/CD Integration**
+
+#### **GitHub Actions Example**
+```yaml
+# .github/workflows/docker.yml
+name: Build and Deploy
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Docker image
+        run: docker build --target production -t acquisitions-api .
+      - name: Run tests
+        run: docker run --rm acquisitions-api npm test
+      - name: Deploy to production
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ARCJET_KEY: ${{ secrets.ARCJET_KEY }}
+        run: |
+          docker-compose -f docker-compose.prod.yml up -d
+```
+
+---
+
+## 11. **Final Summary**
 
 The Acquisitions API is a well-architected Node.js/Express authentication service that demonstrates modern backend development best practices with clean layered architecture, type-safe database operations via Drizzle ORM, and comprehensive security measures including bcrypt password hashing and JWT-based authentication. While currently focused on user management fundamentals (registration, login, logout), the codebase provides a solid, scalable foundation that could easily be extended with additional business logic for acquisition workflows, deal management, or document processing features. The emphasis on code quality, security, and developer experience makes this an exemplary starting point for a larger enterprise application.
 
